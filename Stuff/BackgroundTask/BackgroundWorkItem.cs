@@ -7,29 +7,35 @@ namespace Stuff.Background
     public static class BackgroundWorkItem
     {
         // keep supporting `IBackgroundTask` without order
-        // todo add ServiceProvider
         public static void QueueBackgroundWorkItem(
                 this IBackgroundTaskQueue queue,
-                Func<CancellationToken, Task> method)
+                Func<IServiceProvider, CancellationToken, Task> method)
         {
             queue.Queue(new WorkOrder(method));
         }
 
         public class WorkOrder : IBackgroundWorkOrder<WorkOrder, Worker>
         {
-            public WorkOrder(Func<CancellationToken, Task> method)
+            public WorkOrder(Func<IServiceProvider, CancellationToken, Task> method)
             {
                 Method = method;
             }
 
-            public Func<CancellationToken, Task> Method { get; }
+            public Func<IServiceProvider, CancellationToken, Task> Method { get; }
         }
 
         public class Worker : IBackgroundWorker<WorkOrder, Worker>
         {
+            private readonly IServiceProvider _provider;
+
+            public Worker(IServiceProvider provider)
+            {
+                _provider = provider;
+            }
+
             public async Task DoWork(WorkOrder order, CancellationToken cancellationToken)
             {
-                await order.Method.Invoke(cancellationToken);
+                await order.Method.Invoke(_provider, cancellationToken);
             }
         }
     }

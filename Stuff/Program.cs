@@ -33,7 +33,7 @@ namespace Stuff
             backgroundTaskQueue.Queue(pingOrder);
 
             backgroundTaskQueue.Queue(pingOrder);
-            backgroundTaskQueue.QueueBackgroundWorkItem(ct => { Console.WriteLine("Hello world"); return Task.CompletedTask; });
+            backgroundTaskQueue.QueueBackgroundWorkItem((sp, ct) => { Console.WriteLine("Hello world"); return Task.CompletedTask; });
 
             await Task.Delay(100000);
         }
