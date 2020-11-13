@@ -1,6 +1,5 @@
 ﻿using ConsoleApp4;
 using Microsoft.Extensions.DependencyInjection;
-using System.Threading.Tasks;
 
 namespace Stuff.Background
 {
@@ -11,7 +10,7 @@ namespace Stuff.Background
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
             services.AddHostedService<QueuedHostedService>();
             services.AddScoped<BackgroundWorkItem.Worker>();
-            services.AddPipeline<OrderContext, Task>();
+            services.AddPipeline<OrderContext>();
 
             return services;
         }

@@ -12,7 +12,7 @@ namespace Stuff
     {
         static async Task Main(string[] args)
         {
-            var builder = new HostBuilder()
+            var host = new HostBuilder()
                     .ConfigureServices((hostContext, services) =>
                     {
                         services.AddBackgroundTask();
@@ -20,10 +20,10 @@ namespace Stuff
                         services.AddTransient<SampleMiddelware>();
                     }).Build();
 
-            builder.RunAsync();
+            host.RunAsync();
 
-            var backgroundTaskQueue = builder.Services.GetRequiredService<IBackgroundTaskQueue>();
-            var pipelineBuilder = builder.Services.GetRequiredService<IPipelineBuilder<OrderContext, Task>>();
+            var backgroundTaskQueue = host.Services.GetRequiredService<IBackgroundTaskQueue>();
+            var pipelineBuilder = host.Services.GetRequiredService<IPipelineBuilder<OrderContext>>();
 
             pipelineBuilder.Add<SampleMiddelware>();
 
@@ -36,8 +36,6 @@ namespace Stuff
             backgroundTaskQueue.QueueBackgroundWorkItem(ct => { Console.WriteLine("Hello world"); return Task.CompletedTask; });
 
             await Task.Delay(100000);
-
-            Console.WriteLine("Hello World!");
         }
     }
 }

@@ -12,10 +12,10 @@ namespace Stuff.Sample
 
     public class PingWorker : IBackgroundWorker<PingOrder, PingWorker>
     {
-        public Task DoWork(PingOrder order, CancellationToken cancellationToken)
+        public async Task DoWork(PingOrder order, CancellationToken cancellationToken)
         {
             Console.WriteLine(order.Counter);
-            return Task.CompletedTask;
+            await Task.Delay(250, cancellationToken);
         }
     }
 }

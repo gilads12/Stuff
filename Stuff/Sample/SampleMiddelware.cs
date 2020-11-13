@@ -5,14 +5,13 @@ using System.Threading.Tasks;
 
 namespace Stuff.Sample
 {
-    public class SampleMiddelware : IMiddleware<OrderContext, Task>
+    public class SampleMiddelware : IMiddleware<OrderContext>
     {
-        public async Task<Task> Run(OrderContext parameter, Func<OrderContext, Task<Task>> next)
+        public async Task Run(OrderContext parameter, Func<OrderContext, Task> next)
         {
-            Console.WriteLine($"Starting {nameof(parameter.Order)}...");
-            var res = await next(parameter);
-            Console.WriteLine($"Ending {nameof(parameter.Order)}...");
-            return res;
+            Console.WriteLine($"Starting {parameter.Order.GetType()}...");
+            await next(parameter);
+            Console.WriteLine($"Ending {parameter.Order.GetType()}...");
         }
     }
 }

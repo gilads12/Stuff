@@ -4,10 +4,10 @@ namespace ConsoleApp4
 {
     public static class PipelineExtenstions
     {
-        public static IServiceCollection AddPipeline<TParameter, TReturn>(this IServiceCollection services)
+        public static IServiceCollection AddPipeline<TParameter>(this IServiceCollection services)
         {
-            services.AddSingleton<IPipelineBuilder<TParameter, TReturn>, PipelineBuilder<TParameter, TReturn>>();
-            services.AddTransient<IPipeline<TParameter, TReturn>, OrderPipeline<TParameter, TReturn>>();
+            services.AddSingleton<IPipelineBuilder<TParameter>, PipelineBuilder<TParameter>>();
+            services.AddTransient<IPipeline<TParameter>, OrderPipeline<TParameter>>();
             return services;
         }
     }

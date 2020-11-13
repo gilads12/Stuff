@@ -5,24 +5,24 @@ using System.Threading.Tasks;
 
 namespace ConsoleApp4
 {
-    public interface IPipeline<TParameter, TReturn>
+    public interface IPipeline<TParameter>
     {
-        IPipeline<TParameter, TReturn> Finally(Func<TParameter, Task<TReturn>> finallyFunc);
+        IPipeline<TParameter> Finally(Func<TParameter, Task> finallyFunc);
 
-        IPipeline<TParameter, TReturn> Add(Type middlewareType);
+        IPipeline<TParameter> Add(Type middlewareType);
 
-        Task<TReturn> Execute(TParameter parameter);
+        Task Execute(TParameter parameter);
     }
 
-    public interface IPipelineBuilder<TParameter, TReturn>
+    public interface IPipelineBuilder<TParameter>
     {
-        IPipelineBuilder<TParameter, TReturn> Add<TMiddleware>()
-            where TMiddleware : IMiddleware<TParameter, TReturn>;
+        IPipelineBuilder<TParameter> Add<TMiddleware>()
+            where TMiddleware : IMiddleware<TParameter>;
 
-        IPipeline<TParameter, TReturn> Build();
+        IPipeline<TParameter> Build();
     }
 
-    public class PipelineBuilder<TParameter, TReturn> : IPipelineBuilder<TParameter, TReturn>
+    public class PipelineBuilder<TParameter> : IPipelineBuilder<TParameter>
     {
         private readonly IServiceProvider _provider;
         private readonly IList<Type> _middlewareTypes = new List<Type>();
@@ -32,17 +32,17 @@ namespace ConsoleApp4
             _provider = provider;
         }
 
-        public IPipelineBuilder<TParameter, TReturn> Add<TMiddleware>()
-            where TMiddleware : IMiddleware<TParameter, TReturn>
+        public IPipelineBuilder<TParameter> Add<TMiddleware>()
+            where TMiddleware : IMiddleware<TParameter>
         {
             _middlewareTypes.Add(typeof(TMiddleware));
 
             return this;
         }
 
-        public IPipeline<TParameter, TReturn> Build()
+        public IPipeline<TParameter> Build()
         {
-            var pipe = _provider.GetRequiredService<IPipeline<TParameter, TReturn>>(); // todo: think! may should be using serviceScopeProvider
+            var pipe = _provider.GetRequiredService<IPipeline<TParameter>>(); // todo: think! may should be using serviceScopeProvider
 
             foreach (var middelware in _middlewareTypes)
             {

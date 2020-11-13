@@ -59,17 +59,12 @@ namespace Stuff.Background
 
                         var ctx = new OrderContext { Order = workOrder };
 
-                        var glx = scope.ServiceProvider.GetRequiredService<IPipelineBuilder<OrderContext, Task>>().Build();
+                        var pipe = scope.ServiceProvider.GetRequiredService<IPipelineBuilder<OrderContext>>().Build();
 
-                        glx.Finally((gCtx) =>
-                        {
-                            // todo remvoe task...
-                            return Task.FromResult(
-                            (Task)workerType.GetMethod("DoWork")
-                            .Invoke(worker, new object[] { gCtx.Order, _shutdown.Token }));
-                        });
+                        pipe.Finally(
+                            (gCtx) => (Task)workerType.GetMethod("DoWork").Invoke(worker, new object[] { gCtx.Order, _shutdown.Token }));
 
-                        await glx.Execute(ctx);
+                        await pipe.Execute(ctx);
                     }
                 }
                 catch (Exception ex)
