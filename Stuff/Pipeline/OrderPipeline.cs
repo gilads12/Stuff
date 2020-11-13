@@ -33,8 +33,12 @@ namespace ConsoleApp4
 
         public async Task Execute(TParameter parameter)
         {
-            if (!_middlewareTypes.Any() && _finallyFunc != null)
-                await _finallyFunc(parameter);
+            if (!_middlewareTypes.Any())
+            {
+                if (_finallyFunc != null)
+                    await _finallyFunc(parameter);
+                return;
+            }
 
             int index = 0;
             Func<TParameter, Task> func = null;
