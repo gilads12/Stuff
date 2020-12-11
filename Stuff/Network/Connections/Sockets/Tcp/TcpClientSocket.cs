@@ -1,10 +1,16 @@
 ﻿using NetCoreServer;
+using Polly;
 using System;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Buffer = NetCoreServer.Buffer;
+using TcpClient = NetCoreServer.TcpClient;
 
 namespace Stuff.Network.Connections.Sockets.Tcp
 {
@@ -25,13 +31,8 @@ namespace Stuff.Network.Connections.Sockets.Tcp
         protected override void OnDisconnected()
         {
             Console.WriteLine($"Client disconnected. Endpoint: {Endpoint}");
-            Task.Delay(940).Wait();
-
-            while (!Reconnect())
-            {
-                Task.Delay(640).Wait();
-            }
-            base.ReceiveAsync();
+            Policy.HandleResult(ConnectAsync()).WaitAndRetryAsync(10, retryAttempt => Math.Pow(2, retryAttempt) * TimeSpan.FromMilliseconds(100));
+            //base.ReceiveAsync(); // needed ??
         }
 
         protected override void OnConnected()
