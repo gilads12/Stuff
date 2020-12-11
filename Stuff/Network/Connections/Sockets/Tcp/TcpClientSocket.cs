@@ -12,6 +12,7 @@ namespace Stuff.Network.Connections.Sockets.Tcp
     public class TcpClientSocket : TcpClient, ISocket
     {
         private readonly Subject<byte[]> _messages = new Subject<byte[]>();
+        private bool _reconnecting = false;
 
         public IObservable<byte[]> ReceivedData => _messages.Synchronize().AsObservable();
 
@@ -25,9 +26,25 @@ namespace Stuff.Network.Connections.Sockets.Tcp
 
         protected override void OnDisconnected()
         {
-            Console.WriteLine($"Client disconnected. Endpoint: {Endpoint}");
-            Policy.HandleResult(ConnectAsync()).WaitAndRetryAsync(10, retryAttempt => Math.Pow(2, retryAttempt) * TimeSpan.FromMilliseconds(100));
-            //base.ReceiveAsync(); // needed ??
+            Console.WriteLine($"Client disconnected. Endpoint: {Endpoint}, {DateTime.Now}");
+            if (_reconnecting) return;
+            Policy.HandleResult(false)
+                  .WaitAndRetry(50, i => TimeSpan.FromSeconds(1))
+                  .Execute(ReconnectPolly);
+        }
+
+        private bool ReconnectPolly()
+        {
+            _reconnecting = true;
+
+            DisconnectAsync();
+            if (base.Connect())
+            {
+                _reconnecting = false;
+                base.ReceiveAsync();
+                return true;
+            }
+            return false;
         }
 
         protected override void OnConnected()
