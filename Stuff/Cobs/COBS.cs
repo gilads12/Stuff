@@ -62,7 +62,7 @@ namespace Stuff.Cobs
             }
 
             // If the packet hasn't reached the maximum size
-            if (currentDistance % 0xFF != 0 && result.Count > 0)
+            if (currentDistance % 255 != 0 && result.Count > 0)
                 // Add the last distance variable
                 result.Insert(distanceIndex, distance);
 
