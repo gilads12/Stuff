@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 
@@ -8,7 +9,7 @@ namespace Stuff.Communication
     {
         IDisposable SubscribeAsync<T>(Func<T, Task> onMessage) where T : class;
 
-        Task OnNext<T>(T message) where T : class; 
+        Task OnNext<T>(T message) where T : class;
     }
 
     public class ReceiverBus : IReceiverBus
@@ -22,12 +23,8 @@ namespace Stuff.Communication
             return Task.CompletedTask;
         }
 
-        public IDisposable SubscribeAsync<T>(Func<T, Task> onMessage) where T : class
-        {
-            return _messages.Subscribe(msg =>
-            {
-                onMessage(msg as T);
-            });
-        }
+        public IDisposable SubscribeAsync<T>(Func<T, Task> onMessage) where T : class =>
+            _messages.Where(msg => msg is T).Select(msg => msg as T).SubscribeAsync(onMessage);
+
     }
 }

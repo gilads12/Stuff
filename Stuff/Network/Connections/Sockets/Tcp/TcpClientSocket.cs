@@ -69,7 +69,7 @@ namespace Stuff.Network.Connections.Sockets.Tcp
             return Task.CompletedTask;
         }
 
-        Task ISocket.SendAsync(byte[] data)
+        public new Task SendAsync(byte[] data)
         {
             base.SendAsync(data);
             return Task.CompletedTask;
